@@ -23,12 +23,12 @@ void print(T t,Ts ...ts){
 
 void shuffle(vector<edge> &a){
 	int n=a.size();
-    srand(time(NULL));
-    for(int i=0;i<4*n;i++){
-        int j=rand()%n,k=rand()%n;
-        auto t=a[j];
-        a[j]=a[k];
-        a[k]=t;
+	srand(time(NULL));
+	for(int i=0;i<4*n;i++){
+		int j=rand()%n,k=rand()%n;
+		auto t=a[j];
+		a[j]=a[k];
+		a[k]=t;
     }
 }
 
