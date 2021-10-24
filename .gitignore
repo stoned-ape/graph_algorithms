@@ -1,4 +1,8 @@
 *.o 
 a.out 
 *.dSYM 
+*.dot
+graph.png
+tree.png
+centrality.png
 

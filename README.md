@@ -23,8 +23,12 @@ weigh each edge with the sum of its weights in each tree.
 
 ![](_centrality.png)
 
+The visualizations are created with graphviz
+
 ```bash
 brew install graphviz
-make run 
 ```
+
+use `make` to build or `make run` to build and run. 
+
 
