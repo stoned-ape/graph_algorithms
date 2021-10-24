@@ -29,7 +29,7 @@ void shuffle(vector<edge> &a){
 		auto t=a[j];
 		a[j]=a[k];
 		a[k]=t;
-    }
+	}
 }
 
 
