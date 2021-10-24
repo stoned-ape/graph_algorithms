@@ -23,6 +23,10 @@ weigh each edge with the sum of its weights in each tree.
 
 ![](_centrality.png)
 
+betweenness centrality can also be computed for each node.
+
+![](_node_centrality.png)
+
 The visualizations are created with graphviz
 
 ```bash

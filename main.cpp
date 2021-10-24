@@ -254,7 +254,7 @@ struct graph{
 		for(int i=0;i<node_num;i++){
 			char *ret;
 			asprintf(&ret,"%.2f",cent[i]);
-			node_labels[i]+=":"+string(ret);
+			node_labels[i]+=": "+string(ret);
 		}
 		return cent;
 	}
