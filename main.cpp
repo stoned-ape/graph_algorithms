@@ -2,8 +2,22 @@
 #include <fstream>
 #include <vector>
 #include <array>
+// #include <utility>                   // for std::pair
+// #include <algorithm>                 // for std::for_each
+// #include <boost/graph/graph_traits.hpp>
+// #include <boost/graph/adjacency_list.hpp>
+// #include <boost/graph/dijkstra_shortest_paths.hpp>
+// #include <boost/graph/betweenness_centrality.hpp>
+
+// typedef boost::adjacency_list<boost::vecS,boost::vecS,boost::bidirectionalS> boost_graph;
+
+//prims algorithm
+//kruskal algrothm
+//union find
+//cytoscape
 
 using namespace std;
+
 
 struct edge{
 	int from_idx; 
@@ -160,7 +174,7 @@ struct graph{
 	//incomplete
 	//based on the floyed-warshall algorithm
 	//returns the length of the shortest path
-	//returns 0 if there is no path
+	//returns -1 if there is no path
 	//there could be multiple paths with this length
 	//num: the number of shortest paths between i and j returned by reference
 	//numl: the number of shortest paths between i and j that contain l returned by reference
@@ -258,6 +272,62 @@ struct graph{
 		}
 		return cent;
 	}
+	bool is_cyclic_rec(int *vstack,int sp,int node){
+		for(int i=0;i<sp;i++){
+			if(vstack[i]==node) return true;
+		}
+		vstack[sp]=node;
+		for(auto e:edges[node]){
+			if(sp>0 && vstack[sp-1]==e.to_idx) continue;
+			if(is_cyclic_rec(vstack,sp+1,e.to_idx)) return true;
+		}
+		return false;
+	}
+	bool is_cyclic(){
+		int vstack[node_num];
+		return is_cyclic_rec(vstack,0,0);
+	}
+
+	bool is_path_rec(bool *visted,int i,int j){
+		if(visted[i]) return false;
+		visted[i]=true;
+		if(i==j) return true;
+		for(auto e:edges[i]){
+			if(is_path_rec(visted,e.to_idx,j)) return true;
+		}
+		return false;
+	}
+	bool is_path(int i,int j){
+		bool visted[node_num];
+		memset(visted,0,node_num);
+		return is_path_rec(visted,i,j);
+	}
+	graph kruskal(){
+		graph forrest(true);
+		bool vis[node_num];
+		memset(vis,0,node_num);
+		int vcnt=0;
+		for(int i=0;i<node_num;i++){
+			for(auto e:edges[i]){
+				int j=e.to_idx;
+				if(!forrest.is_path(i,j)){
+					forrest.connect(i,j);
+					print(i," ",j);
+					if(!vis[i]){
+						vis[i]=true;
+						vcnt++;
+					}
+					if(!vis[j]){
+						vis[j]=true;
+						vcnt++;
+					}
+					if(vcnt==node_num) return forrest;
+					assert(vcnt<node_num);
+				}
+			}
+		}
+		return forrest;
+	}
 	
 };
 
@@ -283,6 +353,18 @@ ostream &operator<<(ostream &os,const array<T,n> a){
 int main(){
 	srand(time(NULL));
 	graph<6> g;
+
+	
+	// boost_graph gg(6);
+	// for (int i=0;i<6;i++){
+	// 	for(auto e:g.edges[i]){
+	// 		add_edge(i,e.to_idx,gg);
+	// 	}
+	// }
+	// boost::CentralityMap cmap;
+	// boost::brandes_betweenness_centrality(gg,1);
+	// boost::brandes_betweenness_centrality(1,1);
+
 	
 	cout<<g;
 	g.make_image("graph");
@@ -292,6 +374,7 @@ int main(){
 	}
 	cout<<tree;
 	tree.make_image("tree");
+	assert(!tree.is_cyclic());
 	auto c=g.centrality();
 	cout<<c;
 	c.make_image("centrality");
@@ -299,6 +382,10 @@ int main(){
 	auto cent=g.node_centrality();
 	cout<<cent;
 	g.make_image("node_centrality");
+
+	auto ktree=g.kruskal();
+	ktree.make_image("kruskal_tree");
+	assert(!ktree.is_cyclic());
 }
 
 
