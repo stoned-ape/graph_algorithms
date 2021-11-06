@@ -25,6 +25,25 @@ struct edge{
 	int weight;
 };
 
+template <typename T>
+ostream &operator<<(ostream &os,const vector<T> &v){
+	for(auto i:v) os<<i<<" ";
+	return os<<'\n';
+}
+template <typename T,size_t n>
+ostream &operator<<(ostream &os,const array<T,n> a){
+	for(auto i:a) os<<i<<" ";
+	return os<<'\n';
+}
+
+template <typename T,size_t n>
+ostream &operator<<(ostream &os,const T a[n]){
+	for(int i=0;i<n;i++) os<<a[i]<<" ";
+	return os<<'\n';
+}
+
+
+
 void print(){
 	cout<<"\n";
 }
@@ -302,28 +321,34 @@ struct graph{
 		memset(visted,0,node_num);
 		return is_path_rec(visted,i,j);
 	}
-	graph kruskal(){
-		graph forrest(true);
-		bool vis[node_num];
-		memset(vis,0,node_num);
-		int vcnt=0;
+	static int find(int *nodes,int i){
+		if(nodes[i]==i) return i;
+		return nodes[i]=find(nodes,nodes[i]);
+	}
+	static void _union(int *nodes,int i,int j){
+		int x=find(nodes,i);
+		int y=find(nodes,j);
+		nodes[x]=nodes[y]=min(x,y);
+	}
+	auto get_edge_list(){
+		vector<edge> el;
 		for(int i=0;i<node_num;i++){
 			for(auto e:edges[i]){
-				int j=e.to_idx;
-				if(!forrest.is_path(i,j)){
-					forrest.connect(i,j);
-					print(i," ",j);
-					if(!vis[i]){
-						vis[i]=true;
-						vcnt++;
-					}
-					if(!vis[j]){
-						vis[j]=true;
-						vcnt++;
-					}
-					if(vcnt==node_num) return forrest;
-					assert(vcnt<node_num);
-				}
+				if(e.to_idx>i) el.push_back(e);
+			}
+		}
+		return el;
+	}
+	graph kruskal(){
+		graph forrest(true);
+		int set[node_num];
+		for(int i=0;i<node_num;i++) set[i]=i;
+		auto edgelist=get_edge_list();
+		shuffle(edgelist);
+		for(auto [i,j,w]:edgelist){
+			if(find(set,i)!=find(set,j)){
+				_union(set,i,j);
+				forrest.connect(i,j);
 			}
 		}
 		return forrest;
@@ -335,16 +360,7 @@ struct graph{
 
 
 
-template <typename T>
-ostream &operator<<(ostream &os,const vector<T> &v){
-	for(auto i:v) os<<i<<" ";
-	return os<<'\n';
-}
-template <typename T,size_t n>
-ostream &operator<<(ostream &os,const array<T,n> a){
-	for(auto i:a) os<<i<<" ";
-	return os<<'\n';
-}
+
 
 
 
