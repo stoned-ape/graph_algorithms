@@ -15,6 +15,8 @@
 //kruskal algrothm
 //union find
 //cytoscape
+//networkx
+//snap graph database
 
 using namespace std;
 
@@ -95,8 +97,22 @@ struct graph{
 	}
 	void set_weight(int i,int j,int weight){
 		assert(i<node_num && j<node_num && i!=j);
-		for(auto e:edges[i]) if(j==e.to_idx) e.weight=weight;
-		for(auto e:edges[j]) if(i==e.to_idx) e.weight=weight;
+		auto f=[this,weight](int x,int y){
+			bool _found=false;
+			for(auto &e:this->edges[x]){
+				if(y==e.to_idx){ 
+					_found=true;
+					e.weight=weight;
+					assert(e.weight=weight);
+					break;
+				}
+			}
+			assert(_found);
+		};
+		f(i,j);
+		f(j,i);
+		// for(auto e:edges[i]) if(j==e.to_idx) e.weight=weight;
+		// for(auto e:edges[j]) if(i==e.to_idx) e.weight=weight;
 		assert(weight==get_weight(i,j));
 	}
 	graph(bool empty=false){
@@ -353,6 +369,27 @@ struct graph{
 		}
 		return forrest;
 	}
+	//only works for trees
+	int node_count(int a,int b){
+		int c=1;
+		for(auto &e:edges[a]){
+			if(e.to_idx!=b) c+=node_count(e.to_idx,a);
+		}
+		return c;
+	}
+	void weighted_tree(){
+		for(int i=0;i<node_num;i++){
+			for(auto &e:edges[i]){
+				int j=e.to_idx;
+				assert(get_weight(i,j));
+				int r=node_count(i,j);
+				int l=node_count(j,i);
+				int weight=10*l+r;//min(l,r);
+				set_weight(i,j,weight);
+			
+			}
+		}
+	}
 	
 };
 
@@ -384,22 +421,24 @@ int main(){
 	
 	cout<<g;
 	g.make_image("graph");
-	auto tree=g.spanning_tree(1);
-	for(int i=0;i<5;i++){
-		for(auto e:tree.edges[i]) assert(e.weight==tree.get_weight(i,e.to_idx));
-	}
-	cout<<tree;
-	tree.make_image("tree");
-	assert(!tree.is_cyclic());
-	auto c=g.centrality();
-	cout<<c;
-	c.make_image("centrality");
+	// auto tree=g.spanning_tree(1);
+	// for(int i=0;i<5;i++){
+	// 	for(auto e:tree.edges[i]) assert(e.weight==tree.get_weight(i,e.to_idx));
+	// }
+	// cout<<tree;
+	// tree.make_image("tree");
+	// assert(!tree.is_cyclic());
+	// auto c=g.centrality();
+	// cout<<c;
+	// c.make_image("centrality");
 
-	auto cent=g.node_centrality();
-	cout<<cent;
-	g.make_image("node_centrality");
+	// auto cent=g.node_centrality();
+	// cout<<cent;
+	// g.make_image("node_centrality");
 
 	auto ktree=g.kruskal();
+	ktree.weighted_tree();
+	cout<<ktree;
 	ktree.make_image("kruskal_tree");
 	assert(!ktree.is_cyclic());
 }
